@@ -15,11 +15,12 @@ export const config: AppConfig = {
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
 };
 
-/**
- * Validate that required configuration is present
- */
 export function validateConfig(): void {
   const { aiProvider, geminiApiKey, openaiApiKey, anthropicApiKey } = config;
+
+  if (aiProvider === 'mock') {
+    return;
+  }
 
   const keyMap: Record<string, string> = {
     gemini: geminiApiKey,

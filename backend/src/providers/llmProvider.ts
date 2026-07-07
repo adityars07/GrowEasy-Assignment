@@ -2,6 +2,7 @@ import { LLMProvider } from '../types';
 import { GeminiProvider } from './geminiProvider';
 import { OpenAIProvider } from './openaiProvider';
 import { ClaudeProvider } from './claudeProvider';
+import { MockProvider } from './mockProvider';
 import { config } from '../config';
 
 /**
@@ -18,10 +19,12 @@ export function createLLMProvider(): LLMProvider {
       return new OpenAIProvider(config.openaiApiKey);
     case 'claude':
       return new ClaudeProvider(config.anthropicApiKey);
+    case 'mock':
+      return new MockProvider();
     default:
       throw new Error(
         `Unknown AI provider: "${aiProvider}". ` +
-          `Supported providers: gemini, openai, claude`
+          `Supported providers: gemini, openai, claude, mock`
       );
   }
 }
