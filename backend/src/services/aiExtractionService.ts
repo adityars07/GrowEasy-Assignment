@@ -1,0 +1,118 @@
+import pLimit from 'p-limit';
+import {
+  ImportResponse,
+  CrmRecord,
+  SkippedRow,
+  RowResult,
+  ProgressCallback,
+} from '../types';
+import { createLLMProvider } from '../providers/llmProvider';
+import { retryWithBackoff } from '../utils/retry';
+import { config } from '../config';
+
+/**
+ * Main orchestrator: splits rows into batches, processes them with the LLM
+ * provider with controlled concurrency and retry logic, and aggregates results.
+ */
+export async function processImport(
+  headers: string[],
+  rows: Record<string, string>[],
+  onProgress?: ProgressCallback
+): Promise<ImportResponse> {
+  const { batchSize, concurrencyLimit, maxRetries } = config;
+  const provider = createLLMProvider();
+
+  console.log(
+    `[AIExtraction] Starting import: ${rows.length} rows, ` +
+      `batch size ${batchSize}, concurrency ${concurrencyLimit}, ` +
+      `provider: ${provider.name}`
+  );
+
+  // Split rows into batches
+  const batches: Record<string, string>[][] = [];
+  for (let i = 0; i < rows.length; i += batchSize) {
+    batches.push(rows.slice(i, i + batchSize));
+  }
+
+  const totalBatches = batches.length;
+  let completedBatches = 0;
+
+  // Aggregated results
+  const allRecords: CrmRecord[] = [];
+  const allSkipped: SkippedRow[] = [];
+
+  // Process batches with controlled concurrency
+  const limit = pLimit(concurrencyLimit);
+
+  const batchPromises = batches.map((batch, batchIndex) =>
+    limit(async () => {
+      const globalOffset = batchIndex * batchSize;
+
+      try {
+        // Retry with exponential backoff
+        const batchResult = await retryWithBackoff(
+          () => provider.extractBatch(headers, batch, batchIndex),
+          maxRetries
+        );
+
+        // Process results
+        for (const result of batchResult.results) {
+          const globalRowIndex = globalOffset + result.row_index;
+
+          if (result.status === 'parsed' && result.record) {
+            allRecords.push(result.record);
+          } else {
+            allSkipped.push({
+              row_index: globalRowIndex,
+              raw_row: batch[result.row_index] || {},
+              reason: result.skip_reason || 'Skipped by AI',
+            });
+          }
+        }
+
+        console.log(
+          `[AIExtraction] Batch ${batchIndex + 1}/${totalBatches} completed successfully`
+        );
+      } catch (error) {
+        // All retries exhausted — mark entire batch as skipped
+        console.error(
+          `[AIExtraction] Batch ${batchIndex + 1}/${totalBatches} failed after ${maxRetries + 1} attempts:`,
+          error instanceof Error ? error.message : error
+        );
+
+        for (let i = 0; i < batch.length; i++) {
+          allSkipped.push({
+            row_index: globalOffset + i,
+            raw_row: batch[i],
+            reason: 'AI processing failed after retries',
+          });
+        }
+      } finally {
+        completedBatches++;
+        if (onProgress) {
+          onProgress(completedBatches, totalBatches);
+        }
+      }
+    })
+  );
+
+  await Promise.all(batchPromises);
+
+  // Sort records and skipped by original order
+  allSkipped.sort((a, b) => a.row_index - b.row_index);
+
+  const response: ImportResponse = {
+    total_rows: rows.length,
+    total_imported: allRecords.length,
+    total_skipped: allSkipped.length,
+    records: allRecords,
+    skipped: allSkipped,
+  };
+
+  console.log(
+    `[AIExtraction] Import complete: ${response.total_imported} imported, ` +
+      `${response.total_skipped} skipped out of ${response.total_rows} total`
+  );
+
+  return response;
+}

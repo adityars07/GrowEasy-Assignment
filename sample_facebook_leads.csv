@@ -1,0 +1,6 @@
+id,created_time,ad_id,ad_name,adset_id,adset_name,campaign_id,campaign_name,form_id,form_name,is_organic,platform,full_name,email,phone_number,city,job_title,company_name,are_you_interested_in
+1001,2026-06-01T10:30:00+0530,2301,Summer Sale Ad,4501,Realestate Leads,7701,Q2 Campaign,9901,Contact Form,false,fb,Amit Sharma,amit.sharma@gmail.com,+91 98765 43210,Mumbai,Manager,Reliance Industries,2BHK Apartment
+1002,2026-06-01T11:15:00+0530,2301,Summer Sale Ad,4501,Realestate Leads,7701,Q2 Campaign,9901,Contact Form,false,fb,Deepa Verma,deepa.v@yahoo.com,9123456789,Pune,Director,TCS,3BHK Villa
+1003,2026-06-01T12:00:00+0530,2302,Monsoon Offer,4502,Hot Leads,7701,Q2 Campaign,9902,Quick Inquiry,true,ig,Ravi Kumar,,08012345678,Bangalore,CEO,Kumar Enterprises,Plot
+1004,2026-06-02T09:45:00+0530,2302,Monsoon Offer,4502,Hot Leads,7701,Q2 Campaign,9902,Quick Inquiry,false,fb,Sneha Reddy,sneha.reddy@outlook.com,+91-7654321098,Hyderabad,,Infosys,2BHK Apartment
+1005,2026-06-02T14:20:00+0530,2301,Summer Sale Ad,4501,Realestate Leads,7701,Q2 Campaign,9901,Contact Form,false,fb,No Contact,,,Delhi,Student,,Not sure
