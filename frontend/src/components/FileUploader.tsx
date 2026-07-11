@@ -91,11 +91,11 @@ export default function FileUploader({ onFileSelect, onSampleDownload }: FileUpl
         className={`
           relative cursor-pointer rounded-2xl border-2 border-dashed p-12
           transition-all duration-300 ease-out
-          flex flex-col items-center justify-center gap-4
+          flex flex-col items-center justify-center gap-4 shadow-sm dark:shadow-none
           ${
             isDragging
-              ? 'border-emerald-400 bg-emerald-500/10 scale-[1.02] shadow-lg shadow-emerald-500/20'
-              : 'border-zinc-700 bg-zinc-900/50 hover:border-zinc-500 hover:bg-zinc-800/50'
+              ? 'border-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10 scale-[1.02] shadow-lg shadow-emerald-500/10 dark:shadow-emerald-500/20'
+              : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:border-zinc-400 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/30'
           }
         `}
       >
@@ -104,7 +104,7 @@ export default function FileUploader({ onFileSelect, onSampleDownload }: FileUpl
           className={`
             w-16 h-16 rounded-2xl flex items-center justify-center
             transition-all duration-300
-            ${isDragging ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-800 text-zinc-400'}
+            ${isDragging ? 'bg-emerald-500/20 text-emerald-500 dark:text-emerald-400' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'}
           `}
         >
           <svg
@@ -125,16 +125,16 @@ export default function FileUploader({ onFileSelect, onSampleDownload }: FileUpl
 
         {/* Text */}
         <div className="text-center">
-          <p className="text-lg font-medium text-zinc-200">
+          <p className="text-lg font-medium text-zinc-800 dark:text-zinc-200">
             {isDragging ? 'Drop your CSV file here' : 'Drag & drop your CSV file here'}
           </p>
-          <p className="text-sm text-zinc-500 mt-1">
-            or <span className="text-emerald-400 underline underline-offset-2">browse files</span>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+            or <span className="text-emerald-500 dark:text-emerald-400 font-semibold underline underline-offset-2">browse files</span>
           </p>
         </div>
 
         {/* File constraints */}
-        <div className="flex items-center gap-4 text-xs text-zinc-600">
+        <div className="flex items-center gap-4 text-xs text-zinc-400 dark:text-zinc-500">
           <span className="flex items-center gap-1">
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -162,7 +162,7 @@ export default function FileUploader({ onFileSelect, onSampleDownload }: FileUpl
 
       {/* Error Toast */}
       {error && (
-        <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 animate-shake">
+        <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 animate-shake">
           <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
@@ -171,7 +171,7 @@ export default function FileUploader({ onFileSelect, onSampleDownload }: FileUpl
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); setError(null); }}
-            className="ml-auto text-red-400/60 hover:text-red-400 transition-colors"
+            className="ml-auto text-red-500/60 dark:text-red-400/60 hover:text-red-600 dark:hover:text-red-400 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -184,7 +184,7 @@ export default function FileUploader({ onFileSelect, onSampleDownload }: FileUpl
       <div className="mt-6 text-center">
         <button
           onClick={(e) => { e.stopPropagation(); onSampleDownload(); }}
-          className="text-sm text-zinc-500 hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5"
+          className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

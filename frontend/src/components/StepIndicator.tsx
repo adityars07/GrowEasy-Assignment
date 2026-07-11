@@ -58,7 +58,6 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
         {STEPS.map((step, idx) => {
           const isCompleted = idx < currentIndex;
           const isCurrent = idx === currentIndex;
-          const isFuture = idx > currentIndex;
 
           return (
             <React.Fragment key={step.key}>
@@ -72,8 +71,8 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
                       isCompleted
                         ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
                         : isCurrent
-                          ? 'bg-emerald-500/20 text-emerald-400 border-2 border-emerald-400 shadow-lg shadow-emerald-500/20'
-                          : 'bg-zinc-800 text-zinc-600 border border-zinc-700'
+                          ? 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-2 border-emerald-500 dark:border-emerald-400 shadow-lg shadow-emerald-500/10 dark:shadow-emerald-500/20'
+                          : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 border border-zinc-200 dark:border-zinc-700'
                     }
                   `}
                 >
@@ -86,8 +85,12 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
                   )}
                 </div>
                 <span
-                  className={`text-xs font-medium transition-colors duration-300 ${
-                    isCurrent ? 'text-emerald-400' : isCompleted ? 'text-zinc-300' : 'text-zinc-600'
+                  className={`text-xs font-semibold transition-colors duration-300 ${
+                    isCurrent
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : isCompleted
+                        ? 'text-zinc-700 dark:text-zinc-300'
+                        : 'text-zinc-400 dark:text-zinc-600'
                   }`}
                 >
                   {step.label}
@@ -97,7 +100,7 @@ export default function StepIndicator({ currentStep }: StepIndicatorProps) {
               {/* Connector Line */}
               {idx < STEPS.length - 1 && (
                 <div className="flex-1 h-0.5 mx-3 mb-6 relative">
-                  <div className="absolute inset-0 bg-zinc-800 rounded-full" />
+                  <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
                   <div
                     className={`absolute inset-y-0 left-0 bg-emerald-500 rounded-full transition-all duration-500 ${
                       isCompleted ? 'w-full' : isCurrent ? 'w-1/2' : 'w-0'

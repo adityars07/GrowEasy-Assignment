@@ -97,18 +97,18 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Logo */}
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
               <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
               </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-zinc-100 leading-tight">GrowEasy</h1>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-medium leading-tight">CSV Importer</p>
+              <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 leading-tight">GrowEasy</h1>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.2em] font-medium leading-tight">CSV Importer</p>
             </div>
           </div>
           <ThemeToggle />
@@ -126,10 +126,10 @@ export default function Home() {
         {step === 'upload' && (
           <div className="animate-fade-in">
             <div className="text-center mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-zinc-100 mb-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
                 Import Your CSV Data
               </h2>
-              <p className="text-zinc-500 max-w-lg mx-auto">
+              <p className="text-zinc-500 dark:text-zinc-400 max-w-lg mx-auto">
                 Upload any CSV file — Facebook Lead Ads, Google Ads exports, Excel sheets, CRM exports.
                 Our AI will intelligently map your columns to GrowEasy CRM format.
               </p>
@@ -148,11 +148,11 @@ export default function Home() {
           <div className="animate-fade-in">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-xl font-bold text-zinc-100">Preview Upload</h2>
-                <p className="text-sm text-zinc-500 mt-1">
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Preview Upload</h2>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                   {fileInfo && (
                     <>
-                      <span className="text-zinc-300 font-medium">{fileInfo.name}</span>
+                      <span className="text-zinc-700 dark:text-zinc-300 font-medium">{fileInfo.name}</span>
                       {' · '}
                       {formatFileSize(fileInfo.size)}
                     </>
@@ -162,7 +162,7 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2.5 text-sm font-medium rounded-xl border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-all"
+                  className="px-4 py-2.5 text-sm font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all"
                 >
                   Cancel
                 </button>
@@ -195,7 +195,7 @@ export default function Home() {
               <div className="mt-8 flex items-center gap-3">
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2.5 text-sm font-medium rounded-xl border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-all"
+                  className="px-4 py-2.5 text-sm font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all"
                 >
                   Start Over
                 </button>
@@ -216,15 +216,15 @@ export default function Home() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl font-bold text-zinc-100">Import Results</h2>
-                <p className="text-sm text-zinc-500 mt-1">
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Import Results</h2>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                   AI has mapped your data to GrowEasy CRM format
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2.5 text-sm font-medium rounded-xl border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-all"
+                  className="px-4 py-2.5 text-sm font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all"
                 >
                   New Import
                 </button>
@@ -261,9 +261,9 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800/80 bg-zinc-950/80">
+      <footer className="border-t border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-center">
-          <p className="text-xs text-zinc-600">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
             © {new Date().getFullYear()} GrowEasy · AI-Powered CSV Importer
           </p>
         </div>
