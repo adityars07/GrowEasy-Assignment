@@ -5,9 +5,12 @@ import React from 'react';
 interface ProgressIndicatorProps {
   status: string;
   isError?: boolean;
+  progress?: { completed: number; total: number } | null;
 }
 
-export default function ProgressIndicator({ status, isError = false }: ProgressIndicatorProps) {
+export default function ProgressIndicator({ status, isError = false, progress = null }: ProgressIndicatorProps) {
+  const percentage = progress ? Math.round((progress.completed / progress.total) * 100) : 0;
+
   return (
     <div className="w-full max-w-md mx-auto text-center">
       {/* Animated Icon */}
@@ -41,20 +44,34 @@ export default function ProgressIndicator({ status, isError = false }: ProgressI
         {status}
       </p>
 
-      {/* Progress dots animation */}
+      {/* Progress Bar or Dots */}
       {!isError && (
-        <div className="flex items-center justify-center gap-1.5 mt-6">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-2 h-2 rounded-full bg-emerald-400"
-              style={{
-                animation: 'bounce 1.4s infinite ease-in-out both',
-                animationDelay: `${i * 0.16}s`,
-              }}
-            />
-          ))}
-        </div>
+        progress ? (
+          <div className="mt-6 space-y-2">
+            <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden border border-zinc-700/50">
+              <div
+                className="bg-emerald-400 h-full rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
+              />
+            </div>
+            <div className="text-xs text-zinc-500 text-right font-mono">
+              {progress.completed} / {progress.total} batches
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center gap-1.5 mt-6">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-2 h-2 rounded-full bg-emerald-400"
+                style={{
+                  animation: 'bounce 1.4s infinite ease-in-out both',
+                  animationDelay: `${i * 0.16}s`,
+                }}
+              />
+            ))}
+          </div>
+        )
       )}
     </div>
   );

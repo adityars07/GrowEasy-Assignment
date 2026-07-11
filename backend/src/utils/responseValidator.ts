@@ -49,6 +49,18 @@ export function validateBatchResult(raw: unknown): BatchResult {
     const rawRecord = (row.record || {}) as Record<string, unknown>;
     const record = sanitizeRecord(rawRecord);
 
+    // Safety check: if neither email nor mobile is present, mark as skipped (Rule 3)
+    const hasEmail = record.email && record.email.trim().length > 0;
+    const hasMobile = record.mobile_without_country_code && record.mobile_without_country_code.trim().length > 0;
+    if (!hasEmail && !hasMobile) {
+      return {
+        row_index: rowIndex,
+        status: 'skipped' as const,
+        skip_reason: 'No valid email or mobile number found',
+        record: null,
+      };
+    }
+
     return {
       row_index: rowIndex,
       status: 'parsed' as const,

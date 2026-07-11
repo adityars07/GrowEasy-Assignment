@@ -33,7 +33,7 @@ export default function CsvPreviewTable({ headers, rows }: CsvPreviewTableProps)
         <div
           ref={parentRef}
           className="overflow-auto max-h-[500px]"
-          style={{ contain: 'strict' }}
+          
         >
           <div style={{ minWidth: `${Math.max(headers.length * 160, 800)}px` }}>
             {/* Sticky Header */}

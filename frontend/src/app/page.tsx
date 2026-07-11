@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { AppStep, FileInfo, ParsedCSV, ImportResponse } from '../lib/types';
 import { parseCsvFile } from '../lib/csvParser';
-import { importCsv, recordsToCsv, downloadFile, formatFileSize, getSampleCsvTemplate } from '../lib/api';
+import { importCsv, importCsvStream, recordsToCsv, downloadFile, formatFileSize, getSampleCsvTemplate } from '../lib/api';
 import FileUploader from '../components/FileUploader';
 import CsvPreviewTable from '../components/CsvPreviewTable';
 import ResultsTable from '../components/ResultsTable';
@@ -22,6 +22,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState('Initializing...');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null);
 
   // Step 1: File selected
   const handleFileSelect = useCallback(async (info: FileInfo) => {
@@ -44,15 +45,14 @@ export default function Home() {
     setStep('processing');
     setIsProcessing(true);
     setError(null);
-    setProcessingStatus('Sending data to AI for processing...');
+    setProgress({ completed: 0, total: Math.ceil(parsedCsv.rows.length / 25) });
+    setProcessingStatus('Initializing import...');
 
     try {
-      const batchCount = Math.ceil(parsedCsv.rows.length / 25);
-      setProcessingStatus(
-        `Processing ${parsedCsv.rows.length} rows in ~${batchCount} batch${batchCount > 1 ? 'es' : ''}...`
-      );
-
-      const result = await importCsv(parsedCsv);
+      const result = await importCsvStream(parsedCsv, (completed, total) => {
+        setProgress({ completed, total });
+        setProcessingStatus(`Processed batch ${completed} of ${total} (${Math.round((completed / total) * 100)}%)`);
+      });
       setImportResult(result);
       setStep('results');
     } catch (err) {
@@ -78,6 +78,7 @@ export default function Home() {
     setError(null);
     setProcessingStatus('');
     setIsProcessing(false);
+    setProgress(null);
   }, []);
 
   // Download sample template
@@ -188,6 +189,7 @@ export default function Home() {
             <ProgressIndicator
               status={error || processingStatus}
               isError={!!error}
+              progress={progress}
             />
             {error && (
               <div className="mt-8 flex items-center gap-3">

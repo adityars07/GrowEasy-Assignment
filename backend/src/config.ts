@@ -18,10 +18,6 @@ export const config: AppConfig = {
 export function validateConfig(): void {
   const { aiProvider, geminiApiKey, openaiApiKey, anthropicApiKey } = config;
 
-  if (aiProvider === 'mock') {
-    return;
-  }
-
   const keyMap: Record<string, string> = {
     gemini: geminiApiKey,
     openai: openaiApiKey,

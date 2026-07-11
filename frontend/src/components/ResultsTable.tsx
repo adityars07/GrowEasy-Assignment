@@ -38,7 +38,7 @@ export default function ResultsTable({ records }: ResultsTableProps) {
         <div
           ref={parentRef}
           className="overflow-auto max-h-[500px]"
-          style={{ contain: 'strict' }}
+          
         >
           <div style={{ minWidth: `${CRM_COLUMNS.length * 160}px` }}>
             {/* Sticky Header */}

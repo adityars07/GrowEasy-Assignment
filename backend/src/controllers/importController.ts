@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { processImport } from '../services/aiExtractionService';
+import { processImport, processImportStreaming } from '../services/aiExtractionService';
 import { parseCSV, validateImportRequest } from '../services/csvService';
 import { HttpError } from '../middleware/errorHandler';
 import { ImportRequest } from '../types';
@@ -73,6 +73,67 @@ export async function handleFileImport(
     res.json(result);
   } catch (error) {
     next(error);
+  }
+}
+
+/**
+ * Handle streaming JSON import request.
+ * Streams progress and batch results using SSE.
+ */
+export async function handleStreamingImport(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const body = req.body as ImportRequest;
+
+    const validationError = validateImportRequest(body);
+    if (validationError) {
+      throw new HttpError(validationError, 400);
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    console.log(
+      `[Controller] Starting streaming import: ${body.rows.length} rows, ${body.headers.length} headers`
+    );
+
+    let completedCount = 0;
+
+    await processImportStreaming(
+      body.headers,
+      body.rows,
+      (batchIndex, totalBatches, status, records, skipped, error) => {
+        completedCount++;
+        
+        const eventData = {
+          type: 'batch',
+          batchIndex,
+          totalBatches,
+          completedCount,
+          status,
+          records,
+          skipped,
+          error: error || null
+        };
+        
+        res.write(`data: ${JSON.stringify(eventData)}\n\n`);
+      }
+    );
+
+    res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+    res.end();
+  } catch (error) {
+    if (res.headersSent) {
+      res.write(`data: ${JSON.stringify({ type: 'error', message: error instanceof Error ? error.message : String(error) })}\n\n`);
+      res.end();
+    } else {
+      next(error);
+    }
   }
 }
 

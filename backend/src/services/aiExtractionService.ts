@@ -116,3 +116,90 @@ export async function processImport(
 
   return response;
 }
+
+/**
+ * Streaming version of processImport.
+ * Processes batches concurrently and invokes callback as each batch finishes.
+ */
+export async function processImportStreaming(
+  headers: string[],
+  rows: Record<string, string>[],
+  onBatch: (
+    batchIndex: number,
+    totalBatches: number,
+    status: 'success' | 'failed',
+    records: CrmRecord[],
+    skipped: SkippedRow[],
+    error?: string
+  ) => void
+): Promise<void> {
+  const { batchSize, concurrencyLimit, maxRetries } = config;
+  const provider = createLLMProvider();
+
+  console.log(
+    `[AIExtraction] Starting streaming import: ${rows.length} rows, ` +
+      `batch size ${batchSize}, concurrency ${concurrencyLimit}, ` +
+      `provider: ${provider.name}`
+  );
+
+  // Split rows into batches
+  const batches: Record<string, string>[][] = [];
+  for (let i = 0; i < rows.length; i += batchSize) {
+    batches.push(rows.slice(i, i + batchSize));
+  }
+
+  const totalBatches = batches.length;
+  const limit = pLimit(concurrencyLimit);
+
+  const batchPromises = batches.map((batch, batchIndex) =>
+    limit(async () => {
+      const globalOffset = batchIndex * batchSize;
+
+      try {
+        const batchResult = await retryWithBackoff(
+          () => provider.extractBatch(headers, batch, batchIndex),
+          maxRetries
+        );
+
+        const batchRecords: CrmRecord[] = [];
+        const batchSkipped: SkippedRow[] = [];
+
+        for (const result of batchResult.results) {
+          const globalRowIndex = globalOffset + result.row_index;
+
+          if (result.status === 'parsed' && result.record) {
+            batchRecords.push(result.record);
+          } else {
+            batchSkipped.push({
+              row_index: globalRowIndex,
+              raw_row: batch[result.row_index] || {},
+              reason: result.skip_reason || 'Skipped by AI',
+            });
+          }
+        }
+
+        onBatch(batchIndex, totalBatches, 'success', batchRecords, batchSkipped);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error(
+          `[AIExtraction] Batch ${batchIndex + 1}/${totalBatches} failed after ${maxRetries + 1} attempts:`,
+          errorMessage
+        );
+
+        const batchSkipped: SkippedRow[] = [];
+        for (let i = 0; i < batch.length; i++) {
+          batchSkipped.push({
+            row_index: globalOffset + i,
+            raw_row: batch[i],
+            reason: 'AI processing failed after retries',
+          });
+        }
+
+        onBatch(batchIndex, totalBatches, 'failed', [], batchSkipped, errorMessage);
+      }
+    })
+  );
+
+  await Promise.all(batchPromises);
+}
+

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import {
   handleJsonImport,
+  handleStreamingImport,
   handleFileImport,
   healthCheck,
 } from '../controllers/importController';
@@ -29,6 +30,9 @@ router.get('/health', healthCheck);
 
 // Import via JSON body (parsed CSV data)
 router.post('/import', importRateLimiter, handleJsonImport);
+
+// Import via JSON body with real-time SSE streaming
+router.post('/import/stream', importRateLimiter, handleStreamingImport);
 
 // Import via file upload
 router.post('/import/file', importRateLimiter, upload.single('file'), handleFileImport);
