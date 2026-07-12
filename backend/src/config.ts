@@ -10,8 +10,9 @@ export const config: AppConfig = {
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
   batchSize: parseInt(process.env.BATCH_SIZE || '25', 10),
-  concurrencyLimit: parseInt(process.env.CONCURRENCY_LIMIT || '3', 10),
-  maxRetries: parseInt(process.env.MAX_RETRIES || '2', 10),
+  concurrencyLimit: parseInt(process.env.CONCURRENCY_LIMIT || '1', 10),
+  maxRetries: parseInt(process.env.MAX_RETRIES || '5', 10),
+  batchDelayMs: parseInt(process.env.BATCH_DELAY_MS || '2000', 10),
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
 };
 

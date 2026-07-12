@@ -119,5 +119,6 @@ export interface AppConfig {
   batchSize: number;
   concurrencyLimit: number;
   maxRetries: number;
+  batchDelayMs: number;
   frontendUrl: string;
 }

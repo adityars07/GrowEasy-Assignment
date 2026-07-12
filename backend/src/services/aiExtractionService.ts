@@ -10,6 +10,11 @@ import { createLLMProvider } from '../providers/llmProvider';
 import { retryWithBackoff } from '../utils/retry';
 import { config } from '../config';
 
+/** Simple sleep utility */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /**
  * Main orchestrator: splits rows into batches, processes them with the LLM
  * provider with controlled concurrency and retry logic, and aggregates results.
@@ -19,13 +24,13 @@ export async function processImport(
   rows: Record<string, string>[],
   onProgress?: ProgressCallback
 ): Promise<ImportResponse> {
-  const { batchSize, concurrencyLimit, maxRetries } = config;
+  const { batchSize, concurrencyLimit, maxRetries, batchDelayMs } = config;
   const provider = createLLMProvider();
 
   console.log(
     `[AIExtraction] Starting import: ${rows.length} rows, ` +
       `batch size ${batchSize}, concurrency ${concurrencyLimit}, ` +
-      `provider: ${provider.name}`
+      `delay ${batchDelayMs}ms, provider: ${provider.name}`
   );
 
   // Split rows into batches
@@ -47,6 +52,11 @@ export async function processImport(
   const batchPromises = batches.map((batch, batchIndex) =>
     limit(async () => {
       const globalOffset = batchIndex * batchSize;
+
+      // Add inter-batch delay to avoid rate limits (skip delay for the first batch)
+      if (batchIndex > 0 && batchDelayMs > 0) {
+        await sleep(batchDelayMs);
+      }
 
       try {
         // Retry with exponential backoff
@@ -133,13 +143,13 @@ export async function processImportStreaming(
     error?: string
   ) => void
 ): Promise<void> {
-  const { batchSize, concurrencyLimit, maxRetries } = config;
+  const { batchSize, concurrencyLimit, maxRetries, batchDelayMs } = config;
   const provider = createLLMProvider();
 
   console.log(
     `[AIExtraction] Starting streaming import: ${rows.length} rows, ` +
       `batch size ${batchSize}, concurrency ${concurrencyLimit}, ` +
-      `provider: ${provider.name}`
+      `delay ${batchDelayMs}ms, provider: ${provider.name}`
   );
 
   // Split rows into batches
@@ -154,6 +164,11 @@ export async function processImportStreaming(
   const batchPromises = batches.map((batch, batchIndex) =>
     limit(async () => {
       const globalOffset = batchIndex * batchSize;
+
+      // Add inter-batch delay to avoid rate limits (skip delay for the first batch)
+      if (batchIndex > 0 && batchDelayMs > 0) {
+        await sleep(batchDelayMs);
+      }
 
       try {
         const batchResult = await retryWithBackoff(
@@ -202,4 +217,3 @@ export async function processImportStreaming(
 
   await Promise.all(batchPromises);
 }
-
