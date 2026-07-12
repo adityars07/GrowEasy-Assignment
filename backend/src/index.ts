@@ -13,7 +13,9 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: config.frontendUrl,
+  origin: config.frontendUrl === '*'
+    ? '*'
+    : config.frontendUrl.split(',').map((u) => u.trim()),
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
