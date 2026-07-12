@@ -13,9 +13,29 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: config.frontendUrl === '*'
-    ? '*'
-    : config.frontendUrl.split(',').map((u) => u.trim()),
+  origin: (origin, callback) => {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const allowedOrigins = config.frontendUrl.split(',').map((u) => u.trim().toLowerCase());
+    const originLower = origin.toLowerCase();
+
+    const isAllowed =
+      config.frontendUrl === '*' ||
+      allowedOrigins.includes(originLower) ||
+      originLower.endsWith('.vercel.app') ||
+      /^https?:\/\/localhost(:\d+)?$/.test(originLower) ||
+      /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(originLower);
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Rejected origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
